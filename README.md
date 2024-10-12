@@ -1,8 +1,10 @@
 # Modelling for Pandemic Preparedness and Response (MPPR) Modular Shortcourse
 
-This repository contains materials for the in-person part of this course organized by the German West African Center for Global Health and Pandemic Prevention, a center hosted at the Kwame Nkrumah University of Science and Technology in Kumasi, Ghana.
+This repository contains materials for the in-person part of this course organized by the German West African Center for Global Health and Pandemic Prevention, a center hosted at the Kwame Nkrumah University of Science and Technology in Kumasi, Ghana. 
 
-## Contents
+For materials on the first two days of the online course (introduction to compartmental modelling), see this [repository](https://github.com/jamesmbaazam/intro-to-idd-modelling) or access the slides directly from [here](https://jamesmbaazam.github.io/intro-to-idd-modelling/#/title-slide).
+
+## Contents of this repository
 
 - [/tutorials/](https://github.com/jamesmbaazam/mppr/tree/main/tutorials): Tutorials on the essentials of R for infectious disease modelling
 - [/slides/](https://github.com/jamesmbaazam/mppr/tree/main/slides): Links to various slides providing the background for discussions during various sessions at the in-person course
