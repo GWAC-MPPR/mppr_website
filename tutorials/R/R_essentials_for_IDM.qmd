@@ -1,6 +1,18 @@
 ---
 title: "Essentials of R for Infectious Disease Modelling"
 author: James Mba Azam
+format: 
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+execute:
+  echo: true
+  cache: true
+  enabled: false
+  freeze: auto
+date: "2025-09-01"
+code-tools: true
 ---
 
 ```{r setup, echo=FALSE}
@@ -16,20 +28,31 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-This document provides a summary of *R* commands that will be useful to learn or refresh in preparation for this "Modelling for Pandemic Preparedness and Response" in-person course.
+This document provides a summary of *R* concepts that will be useful to learn or refresh in preparation for this "Modelling for Pandemic Preparedness and Response" in-person course.
 
-There are links in various places which will take you to web sites that provide further information, if you would like more detail on any particular concept. A good general and detailed introduction to *R* is provided in the [R manual](http://cran.r-project.org/doc/manuals/R-intro.html).
+There are links in various places which will take you to web sites that provide further information, if you would like more detail on any particular concept.
 
-## Software
+A good general and detailed introduction to *R* is provided in the [R for Data Science](https://r4ds.hadley.nz/) by Hadley Wickham and others.
 
-To render this document, you will need the latet version of R, and [Quarto](https://quarto.org/docs/download/).
+## Interacting with this tutorial
 
+This tutorial is written in [Quarto](https://quarto.org/) and can be rendered to various formats including HTML and PDF.
+
+To render this document, you will need the latest version of [R](https://www.r-project.org/) and [Quarto](https://quarto.org/docs/download/), and an Integrated Development Environment (IDE) such as [RStudio](https://posit.co/download/rstudio-desktop/), [Positron](https://positron.posit.co/download.html) or [VSCode](https://code.visualstudio.com/).
+
+You can run the code chunks interactively in your IDE or render the entire document by clicking the "Render" next to the magnifying glass above. From there, you can copy and paste the code into your console.
+
+::: callout-tip
+### Tip
+
+For the best experience, open this tutorial in R Studio and switch from *Source* to *Visual* mode on the top left. You can then interact with the code by clicking the green arrow next to each code chunk.
+:::
 
 ## Objectives
 
-The aim of this session is to introduce you to the basics of R programming.
+The aim of this tutorial is to introduce you to the basics of R programming.
 
-This tutorial is organised in three parts from the basics of _R_ through intermediate _R_ to how to use _R_ build compartmental models of infectious disease dynamics.
+This tutorial is organised in three parts from the basics of *R* through intermediate *R* to how to use *R* to build compartmental models of infectious disease dynamics.
 
 The best thing to do is to read the text and run the code chunk to see the results. All the data needed is in the `/data/` directory.
 
@@ -37,7 +60,7 @@ The best thing to do is to read the text and run the code chunk to see the resul
 
 ## Commenting code
 
-Within R code, anything behind a `#` or `#'` are "commented" out and won't be executed. It is good coding practice to comment your code as you go through.  
+Within R code, comments are created with `#` or `#'`. Anything written after these two are "commented" out and won't be treated as R code. It is good coding practice to comment your code as you go through.
 
 ```{r eval=FALSE}
 # This is commented code.
@@ -45,6 +68,28 @@ Within R code, anything behind a `#` or `#'` are "commented" out and won't be ex
 ```
 
 You can use this in your R file to add comments about what the code is doing in your own words.
+
+## R packages
+
+As R is open source, it is being developed and added to all the time. It is likely that you may need commands that are not in the standard R programme that you have installed.
+
+To get access to these other functions, you need to install 'packages'. These contain 'libraries' of functions, already coded into R, that can perform new or different functions.
+
+There are two ways to do this: 1) In RStudio, go to the "Packages" tab and search for the required package and load it. 2) Try replacing "packagename" with the name of the package you would like to install.
+
+```{r eval = FALSE}
+install.packages("packagename")
+```
+
+#### Question
+
+Can you install the package `deSolve`? We will use this to solve ordinary differential equations later on in this practical.
+
+Once installed you then have to load the package at the start of the R file. This is done using
+
+```{r}
+library(deSolve) # load in the deSolve library of functions
+```
 
 ## Working directory
 
@@ -54,29 +99,43 @@ Each computer will have a different specified address for the working directory.
 
 ```{r}
 getwd() # Where am I now? 
-``` 
+```
 
-You need to tell the R session where you want it to work. To do this you use the command to "set the working directory" or `setwd()`.
+You need to tell the R session where you want it to work from. To do this you use the command `setwd()` to "set the working directory".
 
 In general, explicitly setting the working directory is problematic as it is tied to only your computer and anyone else using your code may not be able to access the paths you specified.
 
 For a more reproducible approach, two approaches are strongly recommended:
 
-- use an [Rproj](https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects) file, or
-- use the [here](https://here.r-lib.org/) R package. According to the README of the `here` package, "[it] creates paths relative to the top-level directory. The package displays the top-level of the current project on load or any time you call here()".
+-   use an [Rproj](https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects) file, or
+-   use the [here](https://here.r-lib.org/) R package. According to the README of the `here` package, "\[it\] creates paths relative to the top-level directory. The package displays the top-level of the current project on load or any time you call here()".
 
 ```{r}
 library(here)
 ```
+
+::: callout-note
+#### Question
+
+Did you get an error when you tried to load the `here` package?
+
+Hint: It most likely means you need to install it first using `install.packages("here")`.
+:::
 
 Let's see how `here()` works
 
 ```{r}
 here::here()
 ```
-What happened? Can you compare your result with the person next to you?
 
-Another example, let's specify the path to the data
+::: callout-note
+#### Question
+
+What happened? Can you compare your result with the person next to you?
+:::
+
+Another example. Let's specify the path to the data
+
 ```{r}
 here("data")
 ```
@@ -93,12 +152,12 @@ Moving forward, we will construct paths using the `here()` function, so make sur
 
 ## Mathematical operations in R
 
-The following symbols represent 
+The following symbols represent
 
-* multiplication:  `*`
-* addition:           `+` 
-* subtraction:        `-` 
-* assignment:  `<-` 
+-   multiplication: `*`
+-   addition: `+`
+-   subtraction: `-`
+-   assignment: `<-`
 
 ## Help files
 
@@ -110,9 +169,13 @@ help(sum)
 ??sum
 ```
 
-The first two are equivalent, whilst the last will do a full text search of all R's help files. This is most useful when you aren't sure of what the exact function is called in R. In RStudio, there is also the option to search the help tab in the bottom right window. Google is also very useful for finding commands. 
+The first two are equivalent, whilst the last will do a full text search of all R's help files. This is most useful when you aren't sure of what the exact function is called in R. In RStudio, there is also the option to search the help tab in the bottom right window. Google is also very useful for finding commands. In recent times, you can also use Large Language Models like `ChatGPT` or `Claude` to help you find R commands.
 
-Can you use `??` to find out how you would generate binomial random numbers in R? 
+::: callout-note
+#### Question
+
+Can you use `??` to find out how you would generate binomial random numbers in R?
+:::
 
 ## Data structures
 
@@ -122,7 +185,7 @@ The most common data types you will be working with are: *vectors*, *lists*, *ma
 
 ### Vectors
 
-Vectors are an ordered collection of simple elements such as numbers or strings. They can be created with the `c()` command.
+Vectors are an ordered collection of simple elements such as numbers or strings. They can be created with the concartenate or, `c()` function.
 
 ```{r}
 a <- c(1, 3, 6, 1)
@@ -131,28 +194,33 @@ a
 
 An individual member at position `i` can be accessed with `[i]`.
 
-So the second element of `a` is 
+So the second element of `a` is
+
 ```{r}
 a[2]
 ```
 
 Importantly, vectors can be named. We will use this to define parameters for an SIR model. For a named vector, simply specify the names as you create the vector
+
 ```{r}
 b <- c(start = 3, inc = 2, end = 17)
 b
 ```
 
 The elements of a named vector can be accessed both by index
+
 ```{r}
 b[2]
 ```
 
 and by name
+
 ```{r}
 b["inc"]
 ```
 
 To strip the names from a named vector, one can use double brackets
+
 ```{r}
 b[["inc"]]
 ```
@@ -186,18 +254,20 @@ If the increments are by 1, we can also use a colon
 ```
 
 To create a sequence that starts at `1` with increments of `1`, we can use `seq_len()`
+
 ```{r}
 seq_len(5)
 ```
 
-To create a sequence along the length of a vector, use `seq_along()`
+To create a sequence along the length of a vector, use `seq_along()`. This is useful for looping over the elements of a vector, for example, when exploring parameters.
+
 ```{r}
 seq_along(c(1,2,5))
 ```
 
 ### Lists
 
-Lists are different from vectors in that elements of a list can be anything (including more lists, vectors, etc.), and not all elements have to be of the same type either.
+Lists are different from vectors in that elements of a list can be of any type (including more lists, vectors, etc.), and not all elements have to be of the same type either.
 
 ```{r}
 l <- list("cabbage", c(3,4,1))
@@ -224,6 +294,7 @@ l[["text"]]
 ```
 
 For named lists, you can do the same thing above with a `$`
+
 ```{r}
 l$"text"
 ```
@@ -232,7 +303,7 @@ More on the meanings of single and double brackets, as well as details on anothe
 
 ### Data frames
 
-Data frames are 2-dimensional extensions of vectors. They can be thought of as the *R*-version of an Excel spreadsheet.
+Data frames are 2-dimensional (only have rows and columns) extensions of vectors. They can be thought of as the *R*-version of an Excel spreadsheet.
 
 ```{r}
 df <- data.frame(a = c(2, 3, 0), b = c(1, 4, 5))
@@ -248,6 +319,7 @@ df["a"]
 ```
 
 whereas double brackets return the column as a vector
+
 ```{r}
 df[["a"]]
 ```
@@ -280,39 +352,53 @@ df[2, "a"]
 
 Matrices are also 2-dimensional data structures in R. They can be created with the `matrix()` function.
 
-Here is how to create a matrix of 0's. What do the `4` and `2` arguments represent?
+Here is how to create a matrix of 0's.
+
+::: callout-note
+#### Question
+
+What do the `4` and `2` arguments represent?
+:::
+
 ```{r}
 m <- matrix(0, 4, 2) # matrix of zeros of size 4 x 2
 m # let's look at m
 ```
 
 You can subset matrices by referring to the index of one or more rows and columns, similar to data.frames
+
 ```{r}
 m[1, ] # first row
 m[, 1] # first column
 ```
 
 You can assign new elements to the rows or columns using the subsetting operation
+
 ```{r}
 m[, 1] <- c(2, 3)
 m
 ```
 
-Can you explain what happened? What is it called in R?
+::: callout-note
+#### Question
 
-What happens when you assign more elements than there are in the matrix?
+-   Can you explain what happened? What is it called in R?
+
+-   What happens when you assign more elements than there are in the matrix?
+
+What does the error mean?
+:::
+
 ```{r error=TRUE,eval=FALSE}
 m[, 1] <- c(2, 3, 9)
 ```
 
-What does the error mean?
-
 The difference between matrices and data.frames in R is that matrices can only contain one class of data but data.frame columns can contain different classes.
 
-::: {.callout-note}
+::: callout-note
 #### Question
 
-Can you generate a matrix of size 10 x 5, filled with 2s except for the first column that has the sequence 1 to 10? 
+Can you generate a matrix of size 10 x 5, filled with 2s except for the first column that has the sequence 1 to 10?
 :::
 
 ### Factors
@@ -334,6 +420,7 @@ levels(music_genre)
 ```
 
 You can define your own factor levels
+
 ```{r}
 x <- c("Man", "Male", "Man", "Lady", "Female")
 ## Map from 4 different values to only two levels:
@@ -341,51 +428,35 @@ xf <- factor(x, levels = c("Male", "Man" , "Lady", "Female"))
 xf
 ```
 
-::: {.callout-note}
-A quick note here on "not a numbers". In R these are `NA` or `NaN`. This is usually an error or the result of a silly division.
-0/0
-1/0 # Infinity = Inf
+::: callout-note
+A quick note here on "not a numbers". In R these are `NA` or `NaN`. This is usually an error or the result of a silly division. 0/0 1/0 \# Infinity = Inf
 :::
-
-## R packages
-
-As R is open source, it is being developed and added to all the time. It is likely that you may need commands that are not in the standard R programme that you have installed. 
-
-To get access to these other functions, you need to install 'packages'. These contain 'libraries' of functions, already coded into R, that can perform new or different functions. 
-
-There are two ways to do this:
-1) In RStudio, go to the "Packages" tab and search for the required package and load it. 
-2) Type replacing "packagename" with the name of the package you would like to install.
-
-```{r eval = FALSE}
-install.packages("packagename")
-```
-
-For example, can you install the package `deSolve`? We will use this to solve ordinary differential equations later on in this practical.
-
-Once installed you then have to load the package at the start of the R file. This is done using 
-
-```{r}
-library(deSolve) # load in the deSolve library of functions
-```
 
 ## Reading in data
 
 In order to read in data, the first thing to do is to check that you are pointing R at the right folder by setting the appropriate working directory. To do this make sure you point R to wherever you have decided to store your files.
 
-There are many ways to read in data. Here, as we have '.csv' files we could either use `read.table()`. Note the use of the `here` package. Do you understand how it works?
+There are many ways to read in data. Here, as we have '.csv' files we could either use `read.table()`.
+
+::: callout-note
+#### Question
+
+Note the use of the `here` package. Do you understand how it works?
+:::
+
 ```{r}
 mydata <- read.table(here("data", "data.csv"), header = TRUE, sep = ",")
 ```
 
 or `read.csv()`
+
 ```{r}
 flu_hh <- read.csv(here("data", "data.csv"))
 ```
 
 Here both `mydata` and `flu_hh` are the same data.
 
-::: {.callout-note}
+::: callout-note
 #### Question
 
 How would you check that the two data sets are the same?
@@ -396,6 +467,7 @@ How would you check that the two data sets are the same?
 The data is read in in the form of a `data.frame`. This is a type of data format in R that allows the inclusion of both numbers and strings (letters). There is more information on reading in data in the [R for Data Science book](https://r4ds.hadley.nz/import).
 
 There are several useful tools to look at the data we have read in. Run the following code line by line and make sure you understand how it works. If not sure, see the help file and if still unsure, ask a tutor.
+
 ```{r}
 flu_hh
 dim(flu_hh)
@@ -410,16 +482,17 @@ times
 times[2]
 ```
 
-::: {.callout-note}
+::: callout-note
 #### Question
 
-- How would you go about finding the maximum time in this data?
-- At what time is the number of cases at its maximum? See if you can write code to do this yourself. Hint: See `?which`
+-   How would you go about finding the maximum time in this data?
+-   At what time is the number of cases at its maximum? See if you can write code to do this yourself. Hint: See `?which`
 :::
 
 ## Writing data to file
 
 In order to output data, there is a write equivalent to read (again make sure you are in the appropriate working directory):
+
 ```{r}
 write.table(flu_hh, here("outputs", "flu_hh.txt"), sep = "\t") # Save as tab delimited
 write.csv(flu_hh, here("outputs", "flu_hh.csv")) # or as csv
@@ -431,7 +504,7 @@ write.csv(flu_hh, here("outputs", "flu_hh.csv")) # or as csv
 
 R has inbuilt useful functions for creating plots. The command `plot()` creates a new plot window which can then be added to using `lines()` or `points()`.
 
-::: {.callout-note}
+::: callout-note
 #### Question
 
 Run `?plot`
@@ -439,7 +512,8 @@ Run `?plot`
 What type of plot does `plot()` create by default?
 :::
 
-By default `plot` will create a plot with points, to alter this to create a line plot, use the `type = "l"` command as shown below. Run the following and try to understand what happened. 
+By default `plot` will create a plot with points, to alter this to create a line plot, use the `type = "l"` command as shown below. Run the following and try to understand what happened.
+
 ```{r}
 plot(flu_hh[, 1], flu_hh[, 2]) # Points
 plot(flu_hh[, "time"], flu_hh[, "num_inf"], type = "p") # Points
@@ -468,7 +542,8 @@ plot(flu_hh[, "time"], flu_hh[, "num_inf"], type = "l", col = "red", xlab = "Tim
 dev.off() # magic plot command - if things break do this until error
 ```
 
-You can also plot multiple plots together. For example, using the `par` command, you can divide the window and then place the plots within it. 
+You can also plot multiple plots together. For example, using the `par` command, you can divide the window and then place the plots within it.
+
 ```{r}
 pdf(here("figures", "all_plot.pdf"), height = 8, width = 8)
 par(mfrow = c(2, 2)) # if want to plot several plots on to one window in rows x column formation e.g. here 2 x 2
@@ -513,6 +588,12 @@ for (i in 3:nf) {
 plot(seq(1:nf), fibo, type = "l")
 ```
 
+::: callout-note
+#### Question
+
+What will happen to `mm` over time? Be careful not to overwrite things.
+:::
+
 In the above example, we built an empty vector to fill within the `for` loop. However, we may not know the end size of the resulting vector and so in this case can instead concatenate:
 
 ```{r}
@@ -546,6 +627,7 @@ if (k > 10) {
 ```
 
 Conditionals are built in functions that allow you to compare and contrast elements in R. For example, the `which` function gives you the index of values that match some condition:
+
 ```{r}
 which(flu_hh$time > 60) # index of values that match some condition
 which(flu_hh > 60) # careful if matrix
@@ -555,13 +637,15 @@ which(flu_hh > 60, arr.ind = TRUE) # if want row and column
 ```
 
 `if` statements allow you to compare elements
+
 ```{r}
 if (2 > 3) {
   print("Two is greater than three")
 } # Use for error checking. Print does exactly that - gives output into console
 ```
 
-or check that data had been read in ok: 
+or check that data had been read in ok:
+
 ```{r}
 if (any(flu_hh$num_inf) < 0) {
   print("Error: data has negative numbers")
@@ -569,6 +653,7 @@ if (any(flu_hh$num_inf) < 0) {
 ```
 
 or check that what you are calling a proportion sums to 1:
+
 ```{r}
 flu_hh$prop <- flu_hh$num_inf / sum(flu_hh$num_inf)
 if (sum(flu_hh$prop) != 1) {
@@ -577,6 +662,7 @@ if (sum(flu_hh$prop) != 1) {
 ```
 
 `if` statements can be combined (as in Excel) with `else` statements. These can be simple:
+
 ```{r}
 x <- -1
 sqrt(ifelse(x >= 0, x, NA)) # Only take the square root if x is positive
@@ -584,6 +670,7 @@ x <- ifelse(mean(flu_hh$prop) > 0.5, max(flu_hh$prop), 0)# only assign a maximum
 ```
 
 or more complex:
+
 ```{r}
 if (max(flu_hh$time) < 30) {
   mean_flu_hh <- mean(flu_hh$num_inf)
@@ -607,9 +694,10 @@ To build a function you use the syntax
 name_of_function <- function(inputs){ code }
 ```
 
-Within the 'code' section you need to include the main coding information, which uses the inputs and also 'returns' an output. 
+Within the 'code' section you need to include the main coding information, which uses the inputs and also 'returns' an output.
 
 For example, to build your own function for calculating the mean do:
+
 ```{r}
 my_mean <- function(vector, times){
   sum_vector <- sum(vector)
@@ -621,14 +709,21 @@ my_mean <- function(vector, times){
 ```
 
 To run the function you need the function name and the correct inputs:
+
 ```{r}
 my_mean( c(1,2,3,43) , 3) # prints output
 mm <- my_mean(c(1,2,3,43), 3)
 mm
 ```
-You can store all the functions that you have in one big `.R` file and load them into your current R file using the command `source`. 
 
-Can you understand what the following function does? 
+You can store all the functions that you have in one big `.R` file and load them into your current R file using the command `source`.
+
+::: callout-note
+#### Question
+
+Can you understand what the following function does?
+:::
+
 ```{r}
 find_day_many <- function(matrix) {
   u <- unique(matrix$ward) # What wards are there?
@@ -704,11 +799,13 @@ add1(3)
 The `apply()` function operates on data frames. It takes three arguments: the first argument is the data frame to apply a function to, the second argument specifies whether the function is applied by row (1) or column (2), and the third argument is the function to be applied.
 
 For example, to take the mean of `df` by row, we write
+
 ```{r}
 apply(df, 1, mean)
 ```
 
 To take the mean by column, we write
+
 ```{r}
 apply(df, 2, mean)
 ```
@@ -726,6 +823,7 @@ sapply(a, sqrt)
 ```
 
 We can specify any function to be used by the `apply()` functions, including one we define ourselves. For example, to take the square of every element of vector `a` and return a vector, we can write
+
 ```{r}
 sapply(a, function(x) { x * x})
 ```
@@ -760,43 +858,60 @@ Other functions available are `rnorm()` and `dnorm()` for the normal distributio
 *R* provides packages for running both deterministic and stochastic dynamic models. For deterministic models, the `deSolve` package is a good choice, whereas for stochastic models, `adaptivetau` is recommended.
 
 In order to write and solve [ordinary differential equations (ODEs)](https://en.wikipedia.org/wiki/Ordinary_differential_equation), you need to learn the basic `ode` syntax in R and load the package that we installed earlier (`deSolve`). Remember that to do this you need to type:
+
 ```{r}
 library(deSolve) 
 ```
 
 The package `deSolve` includes a function `ode()` that solves ODE equations. This function needs certain inputs. Have a look at
+
 ```{r tidy = FALSE}
 ?ode
 ```
-and see if you can understand what the required inputs are. 
 
-For this part of the practical, we will build and solve our own SIR model. We will compare it to data and try to determine the correct parameters. 
+::: callout-note
+#### Question
 
-Firstly we need to read in the data, which is stored in `data/data_sir.csv`. 
+Can you understand what the required inputs are?
+:::
+
+For this part of the practical, we will build and solve our own SIR model. We will compare it to data and try to determine the correct parameters.
+
+Firstly we need to read in the data, which is stored in `data/data_sir.csv`.
+
 ```{r}
 data <- read.csv(here("data", "data_sir.csv"))
 data
 ```
-::: {.callout-note}
+
+::: callout-note
 #### Question
 
-Can you make a simple plot to check what this SIR outbreak looks like? 
+Can you make a simple plot to check what this SIR outbreak looks like?
 :::
 
-As described in the help pages for `ode()`, this function itself requires several inputs including another function. 
+As described in the help pages for `ode()`, this function itself requires several inputs including another function.
 
 The first input it requires are the initial conditions. We have to specify the initial conditions for all of the states. Here we have three states, $S$, $I$ and $R$:
+
 ```{r}
 init <- c(S = 0, I = 0, R = 0)
 ```
-Can you alter this initial vector for a population of $100,000$ to have initially one infected and the rest susceptible? 
 
-The second required input are the times over which the output for the ODE is wanted. Note this is not the same as the time steps over which the ODE will be solved. These are specified by the method. Here lets assume lets say we want output every year for 40 years. 
+::: callout-note
+#### Question
+
+Can you alter this initial vector for a population of $100,000$ to have initially one infected and the rest susceptible?
+:::
+
+The second required input are the times over which the output for the ODE is wanted. Note this is not the same as the time steps over which the ODE will be solved. These are specified by the method. Here lets assume lets say we want output every year for 40 years.
+
 ```{r}
 times <- seq(0, 40, by = 1) 
 ```
 
 The third required input is the function itself, which governs the dynamics between the states. Here as we have an SIR model we can translate the differential equations into three simple relationships:
+
 ```{r}
 sir <- function(time, state, parameters) {
   with(as.list(c(state, parameters)), {
@@ -809,20 +924,27 @@ sir <- function(time, state, parameters) {
 ```
 
 Finally, the `ode` function requires the input parameters, which here are only beta and gamma:
+
 ```{r}
 parameters <- c(beta = 2/100000, gamma = 0.5)
 ```
 
 In order to run the function we input all of the above and save the output in a vector called `out`:
+
 ```{r}
 init <- c(S = 100000 - 1, I = 1, R = 0)
 out <- ode(y = init,  func = sir, times = times, parms = parameters)
 head(out) 
 ```
 
-What does the output data look like? Does it make sense? Can you build a simple plot to look at the change in the number Infected over time? 
+::: callout-note
+#### Question
+
+What does the output data look like? Does it make sense? Can you build a simple plot to look at the change in the number Infected over time?
+:::
 
 To look at all of the model output we can plot everything on the same graph:
+
 ```{r}
 plot(out[, "time"], out[, "S"], type = "l", lwd = 10, col = "green", xlab = "Time", ylab = "Number")
 lines(out[, "time"], out[, "I"], col = "red", lwd = 10)
@@ -830,9 +952,14 @@ lines(out[, "time"], out[, "R"], col = "blue", lwd = 10)
 legend(25, 40000, c("Susceptibles", "Infecteds", "Recovereds"), lwd = 10, lty = 1, col = 2:4) # Add legend and specific position
 ```
 
-Does this match the data you read before in using `read.csv` well? Note, that the data given is the proportions infected over time. So in order to compare you either need to convert the data to numbers or the numbers to data. Try and do this, and plot the data and model output on the same graph. A solution is given below if you get stuck. 
+::: callout-note
+#### Question
+
+Does this match the data you read before in using `read.csv` well? Note, that the data given is the proportions infected over time. So in order to compare you either need to convert the data to numbers or the numbers to data. Try and do this, and plot the data and model output on the same graph. A solution is given below if you get stuck.
+:::
 
 What we are doing here is assessing our model's "fit" to the data. This is a key stage in the development of any model - does it reflect reality? The simplest way to do this is by plotting model output and data together and comparing them by eye. Over the next few days, you will try out different methods for model fitting.
+
 ```{r }
 data$number <- data$proportion * 100000
 plot(out[,"time"],out[,"S"],type="l",lwd = 5, col="green",xlab="Time",ylab="Number")
@@ -842,14 +969,14 @@ legend(25, 80000, c("Susceptibles", "Infecteds", "Recovereds"), lwd = 5, lty = 1
 points(data$time,data$number)
 ```
 
-::: {.callout-note}
+::: callout-note
 #### Question
 
-- Assume you know that the value for `beta` is 2/100000. Can you write a function that considers a range of different parameters for `gamma`, runs the model with these various values and then plots the outcomes with the data? From this what is the best estimate you can get for `gamma`? 
+-   Assume you know that the value for `beta` is 2/100000. Can you write a function that considers a range of different parameters for `gamma`, runs the model with these various values and then plots the outcomes with the data? From this what is the best estimate you can get for `gamma`?
 
 Note that this was output generated with a set value for gamma and so you can find a solution - however in the real world epidemic there is unlikely to be such a perfect fit!
 
-- Store your data for the SIR solution at different gamma values using (as above) with `write.csv()` 
+-   Store your data for the SIR solution at different gamma values using (as above) with `write.csv()`
 :::
 
 ## Stochastic models
@@ -860,7 +987,7 @@ The `adaptivetau` package can be installed with `install.packages("adaptivetau")
 library(adaptivetau)
 ```
 
-The `adaptivetau` package uses a different syntax from the `deSolve` package. Instead of providing a function to calculate the rates of change at each time point, one specifies a list of _transitions_ and their rates. Examples for how this is done can be found in the [adaptivetau vignette](http://cran.r-project.org/web/packages/adaptivetau/vignettes/adaptivetau.pdf).
+The `adaptivetau` package uses a different syntax from the `deSolve` package. Instead of providing a function to calculate the rates of change at each time point, one specifies a list of *transitions* and their rates. Examples for how this is done can be found in the [adaptivetau vignette](http://cran.r-project.org/web/packages/adaptivetau/vignettes/adaptivetau.pdf).
 
 For the SIR model, we could write
 
@@ -900,13 +1027,14 @@ run <- ssa.adaptivetau(
 head(run)
 ```
 
-Unlike `ode()` from the `deSolve` package, this does not produce output at specific times, but every time an event happens. To convert this to different times, we first convert the output of `ssa.adaptivetau` to a data frame (`ssa.adaptivetau` returns a _matrix_, a data type which we do not discuss here) using `data.frame`
+Unlike `ode()` from the `deSolve` package, this does not produce output at specific times, but every time an event happens. To convert this to different times, we first convert the output of `ssa.adaptivetau` to a data frame (`ssa.adaptivetau` returns a *matrix*, a data type which we do not discuss here) using `data.frame`
 
 ```{r}
 runDf <- data.frame(run)
 ```
 
 To get the output of $I$ at chosen times, we can use `approx`
+
 ```{r}
 # get output at times 1, ..., 10
 runAtTimes <- approx(
@@ -932,6 +1060,7 @@ runAtTimes <- apply(runDf[2:4], 2, function(x) {
 ```
 
 Let's add the times column
+
 ```{r}
 runAtTimes <- cbind(time = 1:10, runAtTimes)
 runAtTimes_df <- as.data.frame(runAtTimes)
