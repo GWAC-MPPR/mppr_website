@@ -90,3 +90,13 @@ stan/lognormal
 *.html
 *.key
 */figures
+
+# macOS Finder metadata
+.DS_Store
+
+# Zipped copy of tutorials/R, handed out separately; the directory itself is tracked
+/tutorials/R.zip
+
+# Figures the R tutorial writes at runtime; keep the directory, not its contents
+tutorials/R/figures/*
+!tutorials/R/figures/.gitkeep
